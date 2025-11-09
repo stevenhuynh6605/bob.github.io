@@ -97,9 +97,9 @@
                     <br clear="both" />
                 </div>
                 <div class="form-group">
-                    <div class="mb-10">
+                    <!-- <div class="mb-10">
                         <a data-toggle="modal" data-target="#inPageModal" onclick="openSkinsList();" class="btn-primary btn btn-info" role="button" style="width: 100%;">Skins Gallery</a>
-                    </div>
+                    </div> -->
                     <button type="button" id="play-btn" onclick="play(document.getElementById('nick').value); return false;" class="btn btn-play btn-primary btn-needs-server">Play</button>
                     <button onclick="$('#settings, #instructions').toggle(); return false;" class="btn btn-info btn-settings" id="settings-btn"><i class="glyphicon glyphicon-cog"></i></button>
                     <div class="form-group" id="mainform">
@@ -191,8 +191,8 @@
     </div>
     <div id="connecting">
         <div style="width: 350px; background-color: #FFFFFF; margin: 100px auto; border-radius: 15px; padding: 5px 15px 5px 15px;">
-            <h2>Connecting...</h2>
-            <p> If you cannot connect to the server, check if you have an antivirus or firewall blocking the connection.</p>
+            <h2>Đang kết nối...</h2>
+            <p>Khả năng cao server đang tắt hoặc tường lửa chặn mất kết nối.</p>
         </div>
     </div>
     <canvas id="canvas" width="800" height="600"></canvas>
@@ -213,13 +213,13 @@
     var ip = input.value.trim();
 
     if (!ip) {
-      err.textContent = 'Please enter a server IP and port (e.g. 1.2.3.4:1111).';
+      err.textContent = 'Nhập ip';
       err.style.display = 'block';
       return;
     }
 
     if (!validIpPort(ip)) {
-      err.textContent = 'Invalid format. Use ip:port or hostname:port (e.g. example.com:1111).';
+      err.textContent = 'Nhập sai format.';
       err.style.display = 'block';
       return;
     }
