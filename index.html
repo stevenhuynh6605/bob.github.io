@@ -38,6 +38,28 @@
                 for (let i = 0; i < 2; i++) setTimeout(split, 50 * i);
         }
         window.addEventListener("keydown", keydown);
+
+        let wHeld = false;
+        let wInterval;
+
+        function eject() {
+            $("body").trigger($.Event("keydown", { keyCode: 87 })); // 87 = W
+            $("body").trigger($.Event("keyup", { keyCode: 87 }));
+        }
+
+        window.addEventListener("keydown", e => {
+            if (e.keyCode === 87 && !wHeld) { // W pressed
+                wHeld = true;
+                wInterval = setInterval(eject, 0); // adjust speed (ms)
+            }
+        });
+
+        window.addEventListener("keyup", e => {
+            if (e.keyCode === 87) { // W released
+                wHeld = false;
+                clearInterval(wInterval);
+            }
+        });
     </script>
 </head>
 <body>
@@ -64,14 +86,13 @@
         <div id="helloDialog">
             <form role="form">
                 <div class="form-group">
-                    <h2 id="title">MultiOgar Client</h2>
+                    <h2 id="title">Lambeo</h2>
                 </div>
                 <div class="form-group">
                     <input id="nick" class="form-control save" data-box-id="0" placeholder="Nickname" maxlength="30" />
                     <select id="gamemode" class="form-control" onchange="setServer($(this).val());" required>
                         <option selected disabled>Servers:</option>
-                        <option value="26.44.79.67:1111">Server Lâm Béo</option>
-                        <option value="127.0.0.1:1111">Server 1111</option>
+                        <option value="127.0.0.1:1111">Local 1111</option>
                     </select>
                     <br clear="both" />
                 </div>
@@ -81,20 +102,31 @@
                     </div>
                     <button type="button" id="play-btn" onclick="play(document.getElementById('nick').value); return false;" class="btn btn-play btn-primary btn-needs-server">Play</button>
                     <button onclick="$('#settings, #instructions').toggle(); return false;" class="btn btn-info btn-settings" id="settings-btn"><i class="glyphicon glyphicon-cog"></i></button>
-                    <br clear="both" />
+                    <div class="form-group" id="mainform">
+                        <button id="spectate-btn" onclick="spectate(); return false;" style="width: 100%; margin-top:6px" class="btn btn-warning btn-spectate btn-needs-server">👀</button>
+                    </div>
+
                 </div>
                 <div id="settings" class="checkbox" style="display:none;">
-                    <div class="form-group" id="mainform">
-                        <button id="spectate-btn" onclick="spectate(); return false;" style="width: 100%" class="btn btn-warning btn-spectate btn-needs-server">Spectate
+                    <!-- 👇 -->
+                    <div class="form-group" id="custom-ip-group" style="margin-top:6px;">
+                        <input id="custom-ip" class="form-control" placeholder="Enter custom server IP" maxlength="50" />
+                        <button type="button"
+                                id="set-ip-btn"
+                                class="btn btn-sm btn-warning"
+                                style="width:100%; margin-top:6px;"
+                                onclick="setCustomServer(); return false;">
+                            Set Server
                         </button>
-                        <br clear="both" />
+                        <small id="custom-ip-error" style="color:#d9534f; display:none; margin-top:6px; display:block;"></small>
                     </div>
+                    <!-- 👆 -->
                     <div style="margin: 6px;">
                         <label><input type="checkbox" class="save" data-box-id="1" onchange="setSkins(!$(this).is(':checked'));">Hide Skins</label>
                         <label><input type="checkbox" class="save" data-box-id="2" onchange="setNames(!$(this).is(':checked'));">Hide Names</label>
                         <label><input type="checkbox" class="save" data-box-id="4" onchange="setColors($(this).is(':checked'));">Hide Colors</label>
                         <label><input type="checkbox" class="save" data-box-id="7" onchange="setChatHide($(this).is(':checked'));">Hide Chat</label>
-                        <label><input type="checkbox" class="save" data-box-id="8" onchange="setMinimap($(this).is(':checked'));">Hide Minimap</label>
+                        <!-- <label><input type="checkbox" class="save" data-box-id="8" onchange="setMinimap($(this).is(':checked'));">Hide Minimap</label> -->
                         <label><input type="checkbox" class="save" data-box-id="10" onchange="setGrid($(this).is(':checked'));">Hide Grid</label>
                         <label><input type="checkbox" class="save" data-box-id="17" onchange="setFood($(this).is(':checked'));">Hide Food</label>
                         <label><input type="checkbox" class="save" data-box-id="13" onchange="setStats($(this).is(':checked'));">Hide Stats</label>
@@ -139,27 +171,22 @@
                 <hr/>
                 <center>
                     <span class="text-muted">
-            			Move your <b>Mouse</b> to control your cell<br/>
-            			Press <b>Space</b> to split<br/>
-            			Press <b>W</b> to eject mass<br/>
-            			Press <b>E</b> to split minions<br/>
-            			Press <b>R</b> to make minions eject mass<br/>
-            			Press <b>T</b> to freeze/unfreeze minions<br/>
-            			Press <b>P</b> to make minions collect food<br/>
-            		    Press <b>Q</b> (in-game) to make minions follow your cell<br/>
+            			Dùng <b>Chuột</b> để điều khiển<br/>
+            			Bấm <b>Space</b> để tách ra<br/>
+            			Bấm <b>W</b> để phọt cứt<br/>
                 	</span>
                 </center>
-            </div>
-            <div id="footer">
                 <hr/>
-                <!--Credits-->
+            </div>
+            <!-- <div id="footer">
+                <hr/>
                 <a href="https://github.com/agarian-2/MultiOgar" class="text-muted" target="_blank">GitHub - My MultiOgar</a><br>
                 <a href="https://github.com/Barbosik/MultiOgar" class="text-muted" target="_blank">GitHub - Original MultiOgar</a><br>
                 <a href="https://github.com/Megabyte918/MultiOgar-Edited" class="text-muted" target="_blank">GitHub - MultiOgar-Edited</a><br>
                 <a href="https://github.com/CigarProject/Cigar" class="text-muted" target="_blank">GitHub - CigarProject</a><br>
                 <a href="https://github.com/Cigar2/Cigar2" class="text-muted" target="_blank">GitHub - Cigar2</a><br>
                 <a href="https://github.com/Luka967/Cigar" class="text-muted" target="_blank">GitHub - Luka967's Cigar</a><br>
-            </div>
+            </div> -->
         </div>
     </div>
     <div id="connecting">
@@ -173,4 +200,45 @@
     <div style="font-family:'Ubuntu'">&nbsp;</div>
     <script src="assets/js/bootstrap.min.js"></script>
 </body>
+
+<script>
+  function validIpPort(val) {
+    var ipPortRegex = /^([a-zA-Z0-9\.-]+|\d{1,3}(\.\d{1,3}){3}):\d{1,5}$/;
+    return ipPortRegex.test(val.trim());
+  }
+
+  function setCustomServer() {
+    var input = document.getElementById('custom-ip');
+    var err = document.getElementById('custom-ip-error');
+    var ip = input.value.trim();
+
+    if (!ip) {
+      err.textContent = 'Please enter a server IP and port (e.g. 1.2.3.4:1111).';
+      err.style.display = 'block';
+      return;
+    }
+
+    if (!validIpPort(ip)) {
+      err.textContent = 'Invalid format. Use ip:port or hostname:port (e.g. example.com:1111).';
+      err.style.display = 'block';
+      return;
+    }
+
+    err.style.display = 'none';
+
+    try {
+      setServer(ip); // Calls your existing function
+    } catch (e) {
+      console.error('setServer call failed:', e);
+      var sel = document.getElementById('gamemode');
+      if (sel) {
+        var opt = document.createElement('option');
+        opt.value = ip;
+        opt.text = 'Custom: ' + ip;
+        opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+  }
+</script>
 </html>
