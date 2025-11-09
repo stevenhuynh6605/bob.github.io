@@ -996,7 +996,7 @@
             if (killerId && !this.diedBy) this.diedBy = killerId;
         }
         update(relativeTime) {
-            let dt = (relativeTime - this.updated) / 160, //def
+            let dt = (relativeTime - this.updated) / 90, //def
                 prevFrameSize = this.s,
                 diedBy;
             dt = Math.max(Math.min(dt, 1), 0);
