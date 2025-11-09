@@ -289,20 +289,20 @@
             showNames: true,
             showColor: true,
             hideChat: false,
-            showMinimap: true,
-            hideGrid: false,
+            showMinimap: false,
+            hideGrid: true,
             hideFood: false,
             hideStats: false,
             showMass: false,
-            darkTheme: false,
+            darkTheme: true,
             cellBorders: true,
-            jellyPhysics: false,
+            jellyPhysics: true,
             showTextOutline: true,
-            infiniteZoom: false,
+            infiniteZoom: true,
             transparency: false,
-            mapBorders: false,
+            mapBorders: true,
             sectors: false,
-            showPos: false,
+            showPos: true,
             allowGETipSet: false
         },
         pressed = {
@@ -487,7 +487,7 @@
                 count = reader.getUint32();
                 for (let i = 0; i < count; ++i) leaderboard.items.push({
                     me: !!reader.getUint32(),
-                    name: reader.getStringUTF8() || "An unnamed cell"
+                    name: reader.getStringUTF8() || "Unnamed"
                 });
                 drawLeaderboard();
                 break;
@@ -643,7 +643,7 @@
             {text: latestMessages[i].name,
             color: latestMessages[i].color},
             {text: " " + latestMessages[i].message,
-            color: settings.darkTheme ? "#FFF" : "#000"}
+            color: settings.darkTheme ? "#fff" : "#000"}
         ]);
         let width = 0,
             height = 20 * len + 2;
@@ -651,8 +651,8 @@
             let thisLineWidth = 0,
                 complexes = lines[i];
             for (let j = 0; j < complexes.length; j++) {
-                ctx.font = "18px Ubuntu";
-                complexes[j].width = ctx.measureText(complexes[j].text).width;
+                ctx.font = "20px Ubuntu"; // def 18
+                complexes[j].width = ctx.measureText(complexes[j].text).width; 
                 thisLineWidth += complexes[j].width;
             }
             width = Math.max(thisLineWidth, width);
@@ -663,7 +663,7 @@
             width = 0;
             let complexes = lines[i];
             for (let j = 0; j < complexes.length; j++) {
-                ctx.font = "18px Ubuntu";
+                ctx.font = "20px Ubuntu"; // def 18
                 ctx.fillStyle = complexes[j].color;
                 ctx.fillText(complexes[j].text, width, 20 * (1 + i));
                 width += complexes[j].width;
@@ -680,13 +680,8 @@
         if (typeof stats.info.playersDead === "undefined") stats.info.playersDead = 0;
         let rows = [
                 `${stats.info.name} (${stats.info.mode})`,
-                `${stats.info.playersTotal} / ${stats.info.playersLimit} players`,
-                `${stats.info.playersAlive} playing`,
-                `${stats.info.playersDead} dead`,
-                `${stats.info.playersSpect} spectating`,
-                `${stats.info.botsTotal} bots`,
-                `${(stats.info.update * 2.5).toFixed(1)}% memory load`,
-                `${prettyPrintTime(stats.info.uptime)} uptime`
+                `${stats.info.playersTotal} / ${stats.info.playersLimit} players (${stats.info.playersAlive} playing / ${stats.info.playersDead} dead / ${stats.info.playersSpect} spectating)`,
+                `${stats.info.botsTotal} bots | ${(stats.info.update * 2.5).toFixed(1)}% RAM | ${prettyPrintTime(stats.info.uptime)} uptime`,
             ],
             width = 0;
         for (let i = 0; i < rows.length; i++) width = Math.max(width, 2 + ctx.measureText(rows[i]).width + 2);
@@ -747,7 +742,7 @@
                 if (reg) text = text.replace(reg[0], "").trim();
                 let string = String($("#lbColor").val());
                 ctx.fillStyle = isMe ? "#" + (!string ? "FAA" : string) : "#FFF";
-                if (leaderboard.type === "ffa") text = (i + 1) + ". " + (text || "An unnamed cell");
+                if (leaderboard.type === "ffa") text = (i + 1) + ". " + (text || "Unnamed");
                 ctx.textAlign = "left";
                 ctx.fillText(text, 15, 70 + 24 * i);
             }
@@ -875,7 +870,8 @@
         mainCtx.restore();
     }
     function drawGame() {
-        stats.framesPerSecond += (1000 / Math.max(Date.now() - syncAppStamp, 1) - stats.framesPerSecond) / 10;
+        // stats.framesPerSecond += (1000 / Math.max(Date.now() - syncAppStamp, 1) - stats.framesPerSecond) / 10; //def
+        stats.framesPerSecond += (Math.min(61, 1000 / Math.max(Date.now() - syncAppStamp, 1)) - stats.framesPerSecond) / 10; 
         syncAppStamp = Date.now();
         let drawList = cells.list.slice(0).sort(cellSort);
         for (let i = 0; i < drawList.length; i++) drawList[i].update(syncAppStamp);
@@ -1000,7 +996,7 @@
             if (killerId && !this.diedBy) this.diedBy = killerId;
         }
         update(relativeTime) {
-            let dt = (relativeTime - this.updated) / 120,
+            let dt = (relativeTime - this.updated) / 160, //def
                 prevFrameSize = this.s,
                 diedBy;
             dt = Math.max(Math.min(dt, 1), 0);
@@ -1012,8 +1008,8 @@
             this.x = this.ox + (this.nx - this.ox) * dt;
             this.y = this.oy + (this.ny - this.oy) * dt;
             this.s = this.os + (this.ns - this.os) * dt;
-            this.nameSize = ~~(~~(Math.max(~~(.3 * this.ns), 24)) / 3) * 3;
-            this.drawNameSize = ~~(~~(Math.max(~~(.3 * this.s), 24)) / 3) * 3;
+            this.nameSize = ~~(~~(Math.max(~~(.3 * this.ns), 24)) / 1.5) * 3;
+            this.drawNameSize = ~~(~~(Math.max(~~(.3 * this.s), 24)) / 1.5) * 3;
             if (settings.jellyPhysics && this.points.length) {
                 let ratio = this.s / prevFrameSize;
                 if (this.ns != this.os && ratio != 1)
@@ -1105,7 +1101,7 @@
             if (settings.hideFood && this.food) return;
             ctx.fillStyle = settings.showColor ? this.color : Cell.prototype.color;
             let color = String($("#cellBorderColor").val());
-            ctx.strokeStyle = color.length === 3 || color.length === 6 ? "#" + color : settings.showColor ? this.sColor : Cell.prototype.sColor;
+            ctx.strokeStyle = color.length === 5 || color.length === 6 ? "#" + color : settings.showColor ? this.sColor : Cell.prototype.sColor;
             ctx.lineWidth = this.jagged ? 12 : Math.max(~~(this.s / 50), 10);
             let showCellBorder = settings.cellBorders && !this.food && !this.ejected && 20 < this.s;
             if (showCellBorder) this.s -= ctx.lineWidth / 2 - 2;
